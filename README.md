@@ -1,1 +1,3 @@
 # Smash
+
+Smash your tasks!
