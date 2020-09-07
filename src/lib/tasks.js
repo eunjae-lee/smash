@@ -1,13 +1,17 @@
+import { getDateWithoutTime } from "./date";
+
+const LOCAL_STORAGE_KEY = "smashTasks";
+
 export function getList() {
   try {
-    return JSON.parse(window.localStorage.getItem("list"));
+    return JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY));
   } catch (e) {
     return null;
   }
 }
 
 export function setList(newList) {
-  window.localStorage.setItem("list", JSON.stringify(newList));
+  window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newList));
 }
 
 export function addTask(list, newTask) {
@@ -49,6 +53,13 @@ export function getSecondsSpent(task) {
       return acc;
     }, 0);
   return Math.floor(totalSeconds);
+}
+
+export function isTaskForToday(task) {
+  return (
+    getDateWithoutTime(task.createdAt).toString() ===
+    getDateWithoutTime(new Date()).toString()
+  );
 }
 
 const generateUUID = () =>
