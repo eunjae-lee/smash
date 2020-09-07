@@ -2,7 +2,7 @@ import { getDateWithoutTime } from "./date";
 
 const LOCAL_STORAGE_KEY = "smashTasks";
 
-export function getList() {
+export function loadTasks() {
   try {
     return JSON.parse(window.localStorage.getItem(LOCAL_STORAGE_KEY));
   } catch (e) {
@@ -10,7 +10,7 @@ export function getList() {
   }
 }
 
-export function setList(newList) {
+export function saveTasks(newList) {
   window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newList));
 }
 
@@ -19,7 +19,7 @@ export function addTask(list, newTask) {
     ...(list || []),
     { id: generateUUID(), title: newTask, createdAt: new Date().getTime() },
   ];
-  setList(newList);
+  saveTasks(newList);
   return newList;
 }
 
@@ -29,13 +29,13 @@ export function updateTimeRange(list, taskId, startTimestamp) {
     list[index].ranges = {};
   }
   list[index].ranges[startTimestamp] = new Date().getTime();
-  setList(list);
+  saveTasks(list);
 }
 
 export function markAsDone(list, task) {
   const index = list.findIndex((t) => t.id === task.id);
   list[index].done = true;
-  setList(list);
+  saveTasks(list);
 }
 
 export function getSecondsSpent(task) {

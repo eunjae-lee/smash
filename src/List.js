@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { getList, addTask, getSecondsSpent, isTaskForToday } from "./lib/tasks";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import {
+  loadTasks,
+  saveTasks,
+  addTask,
+  getSecondsSpent,
+  isTaskForToday,
+} from "./lib/tasks";
 import { secondsToString } from "./lib/time";
 import { getDateWithoutTime } from "./lib/date";
 
@@ -24,9 +31,20 @@ const dateFormatter = new Intl.DateTimeFormat("default", {
   day: "numeric",
 });
 
+const reorder = (list, startIndex, endIndex) => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+
+  return result.reduce((acc, task, index) => {
+    acc[task.id] = index;
+    return acc;
+  }, {});
+};
+
 export function List() {
   const [newTask, setNewTask] = useState("");
-  const [list, setList] = useState(getList);
+  const [list, setList] = useState(loadTasks);
   const history = useHistory();
 
   const onSubmit = (event) => {
@@ -37,6 +55,31 @@ export function List() {
   const oldTasksPerDay = groupTasksPerDay(
     (list || []).filter((item) => !isTaskForToday(item))
   );
+
+  const todayTasks = (list || [])
+    .filter(isTaskForToday)
+    .sort((a, b) => a.order - b.order);
+
+  const onDragEnd = (result) => {
+    // dropped outside the list
+    if (!result.destination) {
+      return;
+    }
+
+    const orderMap = reorder(
+      todayTasks,
+      result.source.index,
+      result.destination.index
+    );
+
+    const newList = list.map((task) => ({
+      ...task,
+      order: orderMap[task.id],
+    }));
+    saveTasks(newList);
+    setList(newList);
+  };
+
   return (
     <div className="py-10 px-20">
       <div className="p-2">
@@ -46,19 +89,42 @@ export function List() {
             ({dateFormatter.format(new Date())})
           </span>
         </p>
-        <ul className="list-decimal mt-10">
-          {(list || []).filter(isTaskForToday).map((item, index) => (
-            <li
-              key={index}
-              className={`mb-2 ${item.done && "line-through text-gray-500"}`}
-            >
-              <span className="text-2xl text-gray-700">{item.title}</span>
-              <span className="ml-4 text-gray-600">
-                {secondsToString(getSecondsSpent(item))}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="droppable">
+            {(provided, snapshot) => (
+              <ul
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className={`${
+                  snapshot.isDraggingOver ? "list-none" : "list-disc"
+                } mt-10`}
+              >
+                {todayTasks.map((item, index) => (
+                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                    {(provided, snapshot) => (
+                      <li
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className={`mb-2 ${
+                          item.done && "line-through text-gray-500"
+                        }`}
+                      >
+                        <span className="text-2xl text-gray-700">
+                          {item.title}
+                        </span>
+                        <span className="ml-4 text-gray-600">
+                          {secondsToString(getSecondsSpent(item))}
+                        </span>
+                      </li>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </ul>
+            )}
+          </Droppable>
+        </DragDropContext>
       </div>
       <div className="mt-6">
         <form onSubmit={onSubmit}>
