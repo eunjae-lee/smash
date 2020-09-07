@@ -14,6 +14,10 @@ export function saveTasks(newList) {
   window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newList));
 }
 
+export function deleteAllTasks() {
+  window.localStorage.removeItem(LOCAL_STORAGE_KEY);
+}
+
 export function addTask(list, newTask) {
   const newList = [
     ...(list || []),

@@ -4,6 +4,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import {
   loadTasks,
   saveTasks,
+  deleteAllTasks,
   addTask,
   getSecondsSpent,
   isTaskForToday,
@@ -181,6 +182,19 @@ export function List() {
             );
           })}
       </div>
+
+      <button
+        type="button"
+        className="text-gray-400 hover:text-red-600"
+        onClick={() => {
+          if (confirm("Delete all tasks?")) {
+            deleteAllTasks();
+            setList([]);
+          }
+        }}
+      >
+        Delete All...
+      </button>
     </div>
   );
 }
