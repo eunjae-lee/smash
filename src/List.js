@@ -46,6 +46,7 @@ const reorder = (list, startIndex, endIndex) => {
 export function List() {
   const [newTask, setNewTask] = useState("");
   const [list, setList] = useState(loadTasks);
+  const [deleteButtonState, setDeleteButtonState] = useState("initial");
   const history = useHistory();
 
   const onSubmit = (event) => {
@@ -187,13 +188,20 @@ export function List() {
         type="button"
         className="text-gray-400 hover:text-red-600"
         onClick={() => {
-          if (confirm("Delete all tasks?")) {
+          if (deleteButtonState === "initial") {
+            setDeleteButtonState("really");
+          } else if (deleteButtonState === "really") {
             deleteAllTasks();
             setList([]);
+            setDeleteButtonState("initial");
           }
         }}
       >
-        Delete All...
+        {deleteButtonState === "initial"
+          ? "Delete All..."
+          : deleteButtonState === "really"
+          ? "Really?"
+          : ""}
       </button>
     </div>
   );
