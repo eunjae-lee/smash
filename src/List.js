@@ -8,6 +8,8 @@ import {
   addTask,
   getSecondsSpent,
   isTaskForToday,
+  getTasksForToday,
+  getOldTasks,
 } from "./lib/tasks";
 import { secondsToString } from "./lib/time";
 import { getDateWithoutTime } from "./lib/date";
@@ -54,13 +56,9 @@ export function List() {
     setList(addTask(list, newTask));
     setNewTask("");
   };
-  const oldTasksPerDay = groupTasksPerDay(
-    (list || []).filter((item) => !isTaskForToday(item))
-  );
-
-  const todayTasks = (list || [])
-    .filter(isTaskForToday)
-    .sort((a, b) => a.order - b.order);
+  const tasksForToday = getTasksForToday(list || []);
+  const oldTasks = getOldTasks(list || []);
+  const oldTasksPerDay = groupTasksPerDay(oldTasks);
 
   const onDragEnd = (result) => {
     // dropped outside the list
@@ -69,7 +67,7 @@ export function List() {
     }
 
     const orderMap = reorder(
-      todayTasks,
+      tasksForToday,
       result.source.index,
       result.destination.index
     );
@@ -101,7 +99,7 @@ export function List() {
                   snapshot.isDraggingOver ? "list-none" : "list-disc"
                 } mt-10`}
               >
-                {todayTasks.map((item, index) => (
+                {tasksForToday.map((item, index) => (
                   <Draggable key={item.id} draggableId={item.id} index={index}>
                     {(provided, snapshot) => (
                       <li

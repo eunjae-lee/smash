@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import { getList, updateTimeRange, markAsDone } from "./lib/tasks";
+import {
+  loadTasks,
+  getTasksForToday,
+  updateTimeRange,
+  markAsDone,
+} from "./lib/tasks";
 import { secondsToString } from "./lib/time";
 
 export function Smash() {
@@ -10,10 +15,10 @@ export function Smash() {
   const [currentTask, setCurrentTask] = useState();
   const [seconds, setSeconds] = useState();
   useEffect(() => {
-    const list = getList();
+    const list = loadTasks();
     setTasks(list);
 
-    setCurrentTask(list.find((task) => !task.done));
+    setCurrentTask(getTasksForToday(list || []).find((task) => !task.done));
 
     const timestamp = new Date().getTime();
     setStartTimestamp(timestamp);

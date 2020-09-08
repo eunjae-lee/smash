@@ -66,6 +66,14 @@ export function isTaskForToday(task) {
   );
 }
 
+export function getTasksForToday(tasks) {
+  return tasks.filter(isTaskForToday).sort((a, b) => a.order - b.order);
+}
+
+export function getOldTasks(tasks) {
+  return tasks.filter((item) => !isTaskForToday(item));
+}
+
 const generateUUID = () =>
   ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
     (
