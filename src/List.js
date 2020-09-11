@@ -7,7 +7,6 @@ import {
   deleteAllTasks,
   addTask,
   getSecondsSpent,
-  isTaskForToday,
   getTasksForToday,
   getOldTasks,
 } from "./lib/tasks";
@@ -56,7 +55,7 @@ export function List() {
     setList(addTask(list, newTask));
     setNewTask("");
   };
-  const tasksForToday = getTasksForToday(list || []);
+  const [tasksToDo, tasksDone] = getTasksForToday(list || []);
   const oldTasks = getOldTasks(list || []);
   const oldTasksPerDay = groupTasksPerDay(oldTasks);
 
@@ -67,7 +66,7 @@ export function List() {
     }
 
     const orderMap = reorder(
-      tasksForToday,
+      tasksToDo,
       result.source.index,
       result.destination.index
     );
@@ -89,6 +88,19 @@ export function List() {
             ({dateFormatter.format(new Date())})
           </span>
         </p>
+        <div className="mt-10">
+          <button
+            type="button"
+            className="border-2 rounded-md bg-orange-600 hover:bg-orange-700 text-orange-200 w-full py-4 text-3xl"
+            onClick={() => {
+              history.push("/smash");
+            }}
+            disabled={list === null || list.length === 0}
+          >
+            Start Smashing!
+          </button>
+        </div>
+
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="droppable">
             {(provided, snapshot) => (
@@ -99,16 +111,14 @@ export function List() {
                   snapshot.isDraggingOver ? "list-none" : "list-disc"
                 } mt-10`}
               >
-                {tasksForToday.map((item, index) => (
+                {tasksToDo.map((item, index) => (
                   <Draggable key={item.id} draggableId={item.id} index={index}>
                     {(provided, snapshot) => (
                       <li
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        className={`mb-2 ${
-                          item.done && "line-through text-gray-500"
-                        }`}
+                        className="mb-2"
                       >
                         <span className="text-2xl text-gray-700">
                           {item.title}
@@ -137,18 +147,18 @@ export function List() {
           />
         </form>
       </div>
-      <div className="mt-10">
-        <button
-          type="button"
-          className="border-2 rounded-md bg-orange-600 hover:bg-orange-700 text-orange-200 w-full py-4 text-3xl"
-          onClick={() => {
-            history.push("/smash");
-          }}
-          disabled={list === null || list.length === 0}
-        >
-          Start Smashing!
-        </button>
-      </div>
+
+      <p className="mt-10 text-gray-700 uppercase">Done today</p>
+      <ul className="mt-4">
+        {tasksDone.map((item, index) => (
+          <li className="mb-2 line-through text-gray-500">
+            <span className="text-2xl text-gray-500">{item.title}</span>
+            <span className="ml-4 text-gray-500">
+              {secondsToString(getSecondsSpent(item))}
+            </span>
+          </li>
+        ))}
+      </ul>
 
       <div className="p-2 mt-20">
         {Object.keys(oldTasksPerDay)

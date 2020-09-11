@@ -67,7 +67,10 @@ export function isTaskForToday(task) {
 }
 
 export function getTasksForToday(tasks) {
-  return tasks.filter(isTaskForToday).sort((a, b) => a.order - b.order);
+  const list = tasks.filter(isTaskForToday).sort((a, b) => a.order - b.order);
+  const todo = list.filter((task) => !task.done);
+  const done = list.filter((task) => task.done);
+  return [todo, done];
 }
 
 export function getOldTasks(tasks) {
