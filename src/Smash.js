@@ -18,7 +18,8 @@ export function Smash() {
     const list = loadTasks();
     setTasks(list);
 
-    setCurrentTask(getTasksForToday(list || []).find((task) => !task.done));
+    const [tasksToDo, tasksDone] = getTasksForToday(list || []);
+    setCurrentTask(tasksToDo[0]);
 
     const timestamp = new Date().getTime();
     setStartTimestamp(timestamp);
