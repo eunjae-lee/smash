@@ -76,6 +76,7 @@ export function List() {
       ...task,
       order: orderMap[task.id],
     }));
+    console.log({ tasksToDo, result, orderMap, newList });
     saveTasks(newList);
     setList(newList);
   };
@@ -164,7 +165,19 @@ export function List() {
         </ul>
       </div>
 
-      <div className="p-2 mt-10">
+      <div className="mt-10">
+        <button
+          type="button"
+          className="rounded-sm border border-gray-300 text-orange-500 bg-gray-100 py-2 px-4 hover:bg-gray-200"
+          onClick={() => {
+            history.push("/old-tasks");
+          }}
+        >
+          See unfinished old tasks
+        </button>
+      </div>
+
+      <div className="p-2">
         {Object.keys(oldTasksPerDay)
           .sort((a, b) => (a < b ? 1 : -1))
           .map((day) => {

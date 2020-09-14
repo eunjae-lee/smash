@@ -67,9 +67,10 @@ export function isTaskForToday(task) {
 }
 
 export function getTasksForToday(tasks) {
-  const list = tasks.filter(isTaskForToday).sort((a, b) => a.order - b.order);
-  const todo = list.filter((task) => !task.done);
-  const done = list.filter((task) => task.done);
+  const list = tasks.filter(isTaskForToday);
+  const comparer = (a, b) => a.order - b.order;
+  const todo = list.filter((task) => !task.done).sort(comparer);
+  const done = list.filter((task) => task.done).sort(comparer);
   return [todo, done];
 }
 
